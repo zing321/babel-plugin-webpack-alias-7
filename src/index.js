@@ -44,6 +44,23 @@ const getConfigPath = (configPaths) => {
     return conf;
 };
 
+const findAliasConfig = (webpackConfig) => {
+    if (Array.isArray(webpackConfig)) { // Uses webpacks multi-compiler option
+        return webpackConfig.reduce((previous, current) => {
+            const next = Object.assign({}, previous);
+            if (current.resolve && current.resolve.alias) {
+                Object.assign(next, current.resolve.alias);
+            }
+            return next;
+        }, {});
+    } else if (!isEmpty(webpackConfig.resolve)) {
+        return webpackConfig.resolve.alias;
+    } else if (webpackConfig instanceof Function) {
+        return findAliasConfig(webpackConfig({}, {}));
+    }
+    return null;
+};
+
 export default declare(api => {
     api.assertVersion(7);
 
@@ -77,17 +94,7 @@ export default declare(api => {
             // Require the config
             webpackConfig = require(configPath);
 
-            if (Array.isArray(webpackConfig)) { // Uses webpacks multi-compiler option
-                aliasConfig = webpackConfig.reduce((previous, current) => {
-                    const next = Object.assign({}, previous);
-                    if (current.resolve && current.resolve.alias) {
-                        Object.assign(next, current.resolve.alias);
-                    }
-                    return next;
-                }, {});
-            } else if (!isEmpty(webpackConfig.resolve)) {
-                aliasConfig = webpackConfig.resolve.alias;
-            }
+            aliasConfig = findAliasConfig(webpackConfig);
 
             // Exit if there's no alias config
             if (isEmpty(aliasConfig)) {

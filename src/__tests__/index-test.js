@@ -64,7 +64,7 @@ it('Should throw an error if webpack config does not contain a resolve object', 
         );
     } catch (error) {
         expect(error.message)
-            .toEqual('The webpack config file does not contain an alias configuration');
+            .toContain('alias configuration');
     }
 });
 
@@ -80,7 +80,7 @@ it('Should throw an error if webpack config does not contain an alias object', (
         );
     } catch (error) {
         expect(error.message)
-            .toEqual('The webpack config file does not contain an alias configuration');
+            .toContain('alias configuration');
     }
 });
 
